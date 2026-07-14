@@ -1,173 +1,174 @@
-<?php
-
-namespace App\Filters;
-
-use CodeIgniter\Filters\FilterInterface;
-use CodeIgniter\HTTP\RequestInterface;
-use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\CommonModel;
-// use App\Services\CookieService;
+REPORT ztestbdcp_cust_file
+       NO STANDARD PAGE HEADING LINE-SIZE 255.
 
 
+TYPES: BEGIN OF record,
 
-class ProjectAuthFilter implements FilterInterface
-{
-    /**
-     * Do whatever processing this filter needs to do.
-     * By default it should not return anything during
-     * normal execution. However, when an abnormal state
-     * is found, it should return an instance of
-     * CodeIgniter\HTTP\Response. If it does, script
-     * execution will end and that Response will be
-     * sent back to the client, allowing for error pages,
-     * redirects, etc.
-     *
-     * @param RequestInterface $request
-     * @param array|null       $arguments
-     *
-     * @return RequestInterface|ResponseInterface|string|void
-     */
-   public function before(RequestInterface $request, $arguments = null)
-    {
+         ktokd TYPE ktokd,        "Customer Account Group
+         anred TYPE anred,        "Title
+         name1 TYPE name1_gp,     "Name 1
+         land1 TYPE land1_gp,     "Country
+         regio TYPE regio,        "Region
+         spras TYPE spras,        "Language Key
+         civve TYPE civve,        "Civil Status
 
-        helper('project');
-        $cache =service('cache');
-        $uri = service('uri');
-        $CookieService = \Config\Services::CookieService();
-        // $CookieService = service('CookieService');
-        // echo '<pre>';
-        // print_r($CookieService);
-        // die();
-        $segments = $uri->getSegments();
-        $method=  $request->getMethod();
-
-        $projectAccessToken = $request->getVar('p_id') ?? '1';
-        $common_model = new CommonModel();
-        if (!(isset($segments[0]) && $segments[0] == 'link_expired')) {
-
-            if ($projectAccessToken !== '') {
-                // update the token to cookies
-                $decodedProjectId = $projectAccessToken;
+       END OF record.
+*
+*** End generated data section ***
+*
+DATA: it_record TYPE TABLE OF record,
+      wa_record TYPE record.
+DATA: it_bdcdata TYPE TABLE OF bdcdata,
+      wa_bdcdata TYPE bdcdata.
+DATA: it_message TYPE TABLE OF bdcmsgcoll.
 
 
-                // Fetch project details from the database
-                $project_data = $common_model->getProjectDetails($decodedProjectId);
-                if (!empty($project_data)) {
+PARAMETERS:
+  p_file TYPE localfile.
 
-                    // $project_data_encode = base64_encode(json_encode($project_data));
-                    // Fetch project module data from the database
-                    $project_module_data = $common_model->getProjectUserComponents($decodedProjectId);
-                    if (!empty($project_module_data)) {
-                        
-                        // $project_module_data_encode = base64_encode(json_encode($project_module_data));
-                        $cache->delete('project_module'.$decodedProjectId); // delete old one 
-                        $cache->delete('project_'.$decodedProjectId); // delete old one 
-                        $expiresTime = 3600; // 300 seconds = 5 minutes
-                        $cache->save('project_'.$decodedProjectId,  $project_data, $expiresTime); 
-                        $cache->save('project_module_'.$decodedProjectId,  $project_module_data, $expiresTime); 
-                        /**
-                         *  store cookies 
-                         */
-                        $CookieService::set(
-                            'pi',
-                            $decodedProjectId,
-                            $expiresTime
-                        );
-                        session()->set(['pi'=>$decodedProjectId]);
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
 
-                        // CookieService::set(
-                        //     'pd',
-                        //     $project_data_encode,
-                        //     $expiresTime
-                        // );
-                        // CookieService::set(
-                        //     'pmd',
-                        //     $project_module_data_encode,
-                        //     $expiresTime
-                        // );
-                    }
-                }
-            }
-            /**
-             *  
-             *  check cookies and validate cookies
-             *  
-             */
+  CALL FUNCTION 'F4_FILENAME'
+    EXPORTING
+      program_name  = syst-cprog
+      dynpro_number = syst-dynnr
+      field_name    = ' '
+    IMPORTING
+      file_name     = p_file.
 
-            // $projectId = session()->get('pi') ?? 0;
-            // if($projectId==0){
-            //     $projectId =  $CookieService::get('pi') ?? 0; 
-            //     if($projectId>0){
-            //          session()->set(['pi'=>$projectId]);
-            //     }
-            // }
-            $projectId= $common_model->getCacheProjectId();
-            // $project_data_encode = CookieService::get('pd') ?? '';
-            // $project_module_data_decode = CookieService::get('pmd') ?? '';
-            // echo $project_module_data_decode;
-            // $project_module_data = [];
-            // $project_data = [];
-            // if (isset($project_data_encode)  && !empty($project_data_encode)) {
-            //     $project_data = json_decode(base64_decode($project_data_encode), true);
-            // }
-            // if (isset($project_module_data_decode)  && !empty($project_module_data_decode)) {
-            //     $project_module_data = json_decode(base64_decode($project_module_data_decode), true);
-            // }
-             // get data from cache
-            $project_data=  $cache->get('project_'.$projectId); 
-            $project_module_data=  $cache->get('project_module_'.$projectId); 
-            if ($projectId <= 0 || !$project_data || !$project_module_data) {
-                return redirect()->to(base_url('link_expired?k=1'));
-            }
+START-OF-SELECTION.
 
-            /**
-             *  Authorize pages and action based on the component enable or not
-             */
-            $is_page_authorize=validate_allows_routes($segments,'page');
-            if(!$is_page_authorize){
-                
-                return redirect()->to(url_to('home'));
-                
-            }
-            $is_action_authorize=validate_allows_routes($segments,'action');
-            
-            if(!$is_action_authorize){
-               return service('response')->setJSON(['status'=>false, 'message'=>'Unauthorized Access']);
-            }
-        }
-      }
+  DATA: lv_file TYPE string.
+  lv_file = p_file.
+
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename                = lv_file
+*     filetype                = 'ASC'    " File Type (ASC or BIN)
+      has_field_separator     = 'X'    " Columns Separated by Tabs in Case of ASCII Upload
+*     header_length           = 0    " Length of Header for Binary Data
+*     read_by_line            = 'X'    " The file will be written to the internal table line-by-line
+*     dat_mode                = SPACE    " Numeric and Date Fields Imported in ws_download 'DAT' Format
+*     codepage                =     " Character Representation for Output
+*     ignore_cerr             = ABAP_TRUE    " Specifies whether to ignore errors converting character sets
+*     replacement             = '#'    " Replacement Character for Non-Convertible Characters
+*     check_bom               = SPACE    " The consistency of the codepage and byte order mark will be
+*     virus_scan_profile      =     " Virus Scan Profile
+*     no_auth_check           = SPACE    " Switch off Check for Access Rights
+*    IMPORTING
+*     filelength              =     " File Length
+*     header                  =     " File Header in Case of Binary Upload
+    TABLES
+      data_tab                = it_record
+*    CHANGING
+*     isscanperformed         = SPACE    " File already scanned
+    EXCEPTIONS
+      file_open_error         = 1
+      file_read_error         = 2
+      no_batch                = 3
+      gui_refuse_filetransfer = 4
+      invalid_type            = 5
+      no_authority            = 6
+      unknown_error           = 7
+      bad_data_format         = 8
+      header_not_allowed      = 9
+      separator_not_allowed   = 10
+      header_too_long         = 11
+      unknown_dp_error        = 12
+      access_denied           = 13
+      dp_out_of_memory        = 14
+      disk_full               = 15
+      dp_timeout              = 16
+      OTHERS                  = 17.
+  IF sy-subrc <> 0.
+*   MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+*              WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+  ENDIF.
 
 
-    /**
-     * Allows After filters to inspect and modify the response
-     * object as needed. This method does not allow any way
-     * to stop execution of other after filters, short of
-     * throwing an Exception or Error.
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param array|null        $arguments
-     *
-     * @return ResponseInterface|void
-     */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
-        /**
-         *  
-         *  clear cookies cache after page load;
-         */
-        // 
-        $CookieService = \Config\Services::CookieService();
-        $CookieService::clearCache('pi');
-        // CookieService::clear('pmd');
-        // $CookieService::clearCache('pd');
-        // $decodedProjectId = CookieService::get('pi') ?? 0;
-        // echo '<script>console.log(' . $decodedProjectId . ')</script>';
-       
-        
+  LOOP AT it_record INTO wa_record.
 
-    }
-}
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0100'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'RF02D-KTOKD'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '/00'.
+    PERFORM bdc_field       USING 'RF02D-KTOKD'
+                                  wa_record-ktokd.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0110'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNA1-SPRAS'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '/00'.
+    PERFORM bdc_field       USING 'KNA1-ANRED'
+                                  wa_record-anred.
+    PERFORM bdc_field       USING 'KNA1-NAME1'
+                                  wa_record-name1.
+    PERFORM bdc_field       USING 'KNA1-LAND1'
+                                  wa_record-land1.
+    PERFORM bdc_field       USING 'KNA1-REGIO'
+                                  wa_record-regio.
+    PERFORM bdc_field       USING 'KNA1-SPRAS'
+                                  wa_record-spras.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0120'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNA1-LIFNR'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '/00'.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0125'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNA1-NIELS'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '/00'.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0130'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNBK-BANKS(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=ENTR'.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0340'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNVA-ABLAD(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=ENTR'.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0370'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNEX-LNDEX(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=ENTR'.
+    PERFORM bdc_field       USING 'KNA1-CIVVE'
+                                  wa_record-civve.
+    PERFORM bdc_dynpro      USING 'SAPMF02D' '0360'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'KNVK-NAMEV(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=ENTR'.
 
+    CALL TRANSACTION 'XD01' USING it_bdcdata MODE 'A' UPDATE 'S' MESSAGES INTO it_message.
+    CLEAR it_bdcdata.
 
-?>
+  ENDLOOP.
+
+  cl_demo_output=>display( it_message ).
+
+*----------------------------------------------------------------------*
+*        Start new screen                                              *
+*----------------------------------------------------------------------*
+FORM bdc_dynpro USING program dynpro.
+  CLEAR wa_bdcdata.
+  wa_bdcdata-program  = program.
+  wa_bdcdata-dynpro   = dynpro.
+  wa_bdcdata-dynbegin = 'X'.
+  APPEND wa_bdcdata TO it_bdcdata.
+ENDFORM.
+
+*----------------------------------------------------------------------*
+*        Insert field                                                  *
+*----------------------------------------------------------------------*
+FORM bdc_field USING fnam fval.
+*  IF fval <> nodata.
+  CLEAR wa_bdcdata.
+  wa_bdcdata-fnam = fnam.
+  wa_bdcdata-fval = fval.
+  APPEND wa_bdcdata TO it_bdcdata.
+*  ENDIF.
+ENDFORM.
