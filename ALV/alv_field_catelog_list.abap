@@ -102,16 +102,6 @@ FORM get_data.
 *    MESSAGE 'No Data Found' TYPE 'I'.
 *  ENDIF.
 
-*  CLEAR lv_sr.
-*
-*  LOOP AT gt_output INTO gs_output.
-*
-*    lv_sr = lv_sr + 1.
-*    gs_output-srno = lv_sr.
-*
-*    MODIFY gt_output FROM gs_output.
-*
-*  ENDLOOP.
 
   CLEAR lv_sr.
 
@@ -125,34 +115,6 @@ FORM get_data.
   ENDLOOP.
 
 ENDFORM.
-
-*FORM display_alv.
-*
-*  DATA: go_alv TYPE REF TO cl_salv_table.
-*
-*  TRY.
-*
-*      cl_salv_table=>factory(
-*
-*        IMPORTING
-*          r_salv_table = go_alv
-*
-*        CHANGING
-*          t_table = gt_output ).
-*
-*      go_alv->get_functions( )->set_all( abap_true ).
-*
-*      go_alv->get_columns( )->set_optimize( ).
-*
-*      go_alv->display( ).
-*
-*    CATCH cx_salv_msg.
-*      MESSAGE 'Error while displaying ALV' TYPE 'E'.
-*
-*  ENDTRY.
-*
-*ENDFORM.
-
 
 
 FORM replace_blank.
