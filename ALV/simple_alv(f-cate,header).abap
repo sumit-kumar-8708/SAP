@@ -203,7 +203,7 @@ FORM top_of_page.
   "Current Date
   CLEAR gs_listheader.
 
- *  CONCATENATE 'Date: ' sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO date_string SEPARATED BY '-'.
+*  CONCATENATE 'Date: ' sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO date_string SEPARATED BY '-'.
   CONCATENATE sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO date_string SEPARATED BY '-'.
 
   gs_listheader-typ  = 'S'.
