@@ -89,9 +89,9 @@ APPEND wa_structure TO it_structure.
 CLEAR wa_structure.
 
 
-PERFORM send_to_as.
+PERFORM send_to_AL11.
 
-FORM send_to_as .
+FORM send_to_AL11 .
   DATA : file_path   TYPE string,
          string_line TYPE string.
 
