@@ -6,13 +6,13 @@ FORM send_to_as .
   DATA: file_path TYPE string.
 
 * Application Server par file ka path assign kiya
-  file_path = 'E:\usr\sap\TEC\D00\data\test_2607.txt'.
+  file_path = 'E:\usr\sap\TEC\D00\data\test_2607.txt'. " You can get this path from the AL11 screen
 
 * Application Server par nayi file create/open kar rahe hain
 * FOR OUTPUT = File me data write karna
 * TEXT MODE = Text format me file create hogi
 * ENCODING DEFAULT = System default encoding use hogi
-OPEN DATASET file_path FOR OUTPUT IN TEXT MODE ENCODING DEFAULT.
+OPEN DATASET file_path FOR OUTPUT IN TEXT MODE ENCODING DEFAULT. " OUTPUT MODE => means opening the file in Write mode.
 
 * Check ki file successfully open hui ya nahi
   IF sy-subrc IS INITIAL.
