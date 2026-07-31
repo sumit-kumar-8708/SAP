@@ -5,7 +5,7 @@
 *&---------------------------------------------------------------------*
 REPORT Z_CALL_CLASS_2_LOCAL_CLASS.
 
-" EX-1 simple local class
+" EXAMPLE-1 simple local class
 
 " Local Class Definition
 CLASS lcl_employee DEFINITION.
@@ -35,7 +35,7 @@ data(lo_employee) = new lcl_employee( ).
 CALL METHOD lo_employee->display_details.
 CALL METHOD lo_employee->display_name.
 
-" EX-2 Local call with inline internal table declaration
+" EXAMPLE-2 Local call with inline internal table declaration
 
 " Selection Screen
 PARAMETERS: p_vbeln TYPE vbeln_va.
@@ -77,3 +77,59 @@ ENDCLASS.
 START-OF-SELECTION.
   DATA(lo_employee) = NEW lcl_employee( ).
   CALL METHOD lo_employee->display_details( ).
+
+" EXample-3
+
+PARAMETERS: p_vbeln TYPE vbeln_va.
+
+CLASS lcl_employee DEFINITION.
+  PUBLIC SECTION.
+    METHODS:
+      display_details
+        IMPORTING
+          p_vbeln TYPE vbeln_va
+        EXPORTING
+          v_vbeln TYPE vbeln_va
+          v_erdat TYPE erdat
+          v_erzet TYPE erzet
+          v_ernam TYPE ernam.
+ENDCLASS.
+
+CLASS lcl_employee IMPLEMENTATION.
+
+  METHOD display_details.
+
+    SELECT SINGLE vbeln,
+                  erdat,
+                  erzet,
+                  ernam
+      FROM vbak
+      INTO (@v_vbeln, @v_erdat, @v_erzet, @v_ernam)
+      WHERE vbeln = @p_vbeln.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+START-OF-SELECTION.
+
+  DATA(lo_employee) = NEW lcl_employee( ).
+
+  DATA: lv_vbeln TYPE vbeln_va,
+        lv_erdat TYPE erdat,
+        lv_erzet TYPE erzet,
+        lv_ernam TYPE ernam.
+
+  CALL METHOD lo_employee->display_details
+    EXPORTING
+      p_vbeln = p_vbeln
+    IMPORTING
+      v_vbeln   = lv_vbeln
+      v_erdat   = lv_erdat
+      v_erzet   = lv_erzet
+      v_ernam   = lv_ernam.
+
+  WRITE: / 'VBELN :', lv_vbeln.
+  WRITE: / 'ERDAT :', lv_erdat.
+  WRITE: / 'ERZET :', lv_erzet.
+  WRITE: / 'ERNAM :', lv_ernam.
