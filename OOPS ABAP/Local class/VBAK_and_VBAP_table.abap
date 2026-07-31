@@ -156,3 +156,106 @@ START-OF-SELECTION.
   ELSE.
     MESSAGE 'You have entered wrong sale doc no. ' TYPE 'E'.
   ENDIF.
+
+
+
+"******************** second Way *******************************************
+REPORT z_call_class_3_local_class.
+
+TYPES: BEGIN OF ty_final, " combine of both table
+         vbeln TYPE vbeln_va,
+         erdat TYPE erdat,
+         erzet TYPE erzet,
+         ernam TYPE ernam,
+         vbtyp TYPE vbtyp,
+         posnr TYPE posnr,
+         matnr TYPE matnr,
+       END OF ty_final.
+
+DATA: lt_final TYPE TABLE OF ty_final,
+      ls_final TYPE ty_final.
+
+DATA iv_vbeln TYPE vbeln_va.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+
+SELECT-OPTIONS: s_vbeln FOR iv_vbeln OBLIGATORY.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+" validation on select option
+
+AT SELECTION-SCREEN.
+
+  LOOP AT s_vbeln INTO DATA(ls_vbeln).
+
+    " Only numbers allowed
+    IF ls_vbeln-low CN '0123456789'.
+      MESSAGE 'Only numeric values are allowed.' TYPE 'E'.
+    ENDIF.
+
+    IF ls_vbeln-high IS NOT INITIAL.
+      IF ls_vbeln-high CN '0123456789'.
+        MESSAGE 'Only numeric values are allowed.' TYPE 'E'.
+      ENDIF.
+    ENDIF.
+
+
+  ENDLOOP.
+
+CLASS lcl_final DEFINITION.
+  PUBLIC SECTION.
+    METHODS: display_details.
+
+ENDCLASS.
+
+CLASS lcl_final IMPLEMENTATION.
+
+  METHOD display_details.
+
+    SELECT a~vbeln,
+       a~erdat,
+       a~erzet,
+       a~ernam,
+       a~vbtyp,
+       b~posnr,
+       b~matnr
+     FROM vbak AS a
+     INNER JOIN vbap AS b
+     ON a~vbeln = b~vbeln
+     INTO TABLE @lt_final
+     WHERE a~vbeln IN @s_vbeln.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+START-OF-SELECTION.
+
+  " call class
+  DATA(lo_result) = NEW lcl_final( ).
+  CALL METHOD lo_result->display_details.
+
+  IF lt_final IS NOT INITIAL.
+
+    TRY.
+        CALL METHOD cl_salv_table=>factory
+          EXPORTING
+            list_display = if_salv_c_bool_sap=>false
+          IMPORTING
+            r_salv_table = DATA(salv_display)
+          CHANGING
+            t_table      = lt_final.
+
+        " Enable all standard functions
+        salv_display->get_functions( )->set_all( abap_true ).
+
+        " display table
+        salv_display->display( ).
+
+      CATCH cx_salv_msg .
+    ENDTRY.
+
+  ELSE.
+    MESSAGE 'You have entered wrong sale doc no. ' TYPE 'E'.
+  ENDIF.
