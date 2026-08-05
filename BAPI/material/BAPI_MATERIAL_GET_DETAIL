@@ -1,0 +1,65 @@
+*&---------------------------------------------------------------------*
+*& Report Z_MATERIAL_DETAILS
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_material_details.
+
+DATA: wa_material_no           TYPE bapimatdet-material VALUE '000000000000000098',
+      wa_plant                 TYPE bapimatall-plant VALUE 'A001',
+      wa_material_general_data TYPE bapimatdoa,
+      wa_return                TYPE bapireturn,
+      wa_materialplantdata     TYPE bapimatdoc,
+      wa_materialvaluationdata TYPE bapimatdobew.
+
+
+CALL FUNCTION 'BAPI_MATERIAL_GET_DETAIL'
+  EXPORTING
+    material              = wa_material_no
+    plant                 = wa_plant
+*   VALUATIONAREA         =
+*   VALUATIONTYPE         =
+*   MATERIAL_EVG          =
+*   MATERIAL_LONG         =
+  IMPORTING
+    material_general_data = wa_material_general_data
+    return                = wa_return
+    materialplantdata     = wa_materialplantdata
+    materialvaluationdata = wa_materialvaluationdata.
+
+IF wa_return-type = 'E' OR wa_return-type = 'A'.
+
+  WRITE: / 'Error:', wa_return-message.
+  EXIT.
+
+ENDIF.
+
+WRITE: / '==============================='.
+WRITE: / 'GENERAL DATA'.
+WRITE: / '==============================='.
+
+WRITE: / 'Material Number :', wa_material_no.
+WRITE: / 'Material Type   :', wa_material_general_data-matl_type.
+WRITE: / 'Industry Sector :', wa_material_general_data-matl_group.
+WRITE: / 'Base UOM        :', wa_material_general_data-base_uom.
+WRITE: / 'Material Group  :', wa_material_general_data-matl_group.
+WRITE: / 'Old Material No :', wa_material_general_data-old_mat_no.
+
+WRITE: /.
+WRITE: / '==============================='.
+WRITE: / 'PLANT DATA'.
+WRITE: / '==============================='.
+
+WRITE: / 'Plant                :', wa_plant.
+WRITE: / 'issue unit           :', wa_materialplantdata-issue_unit.
+WRITE: / 'Purchasing Group     :', wa_materialplantdata-pur_group.
+
+WRITE: /.
+WRITE: / '==============================='.
+WRITE: / 'VALUATION DATA'.
+WRITE: / '==============================='.
+
+WRITE: / 'moving avg price :', wa_materialvaluationdata-moving_pr.
+WRITE: / 'Price Control   :', wa_materialvaluationdata-price_ctrl.
+WRITE: / 'Standard Price  :', wa_materialvaluationdata-std_price.
+WRITE: / 'Moving Price    :', wa_materialvaluationdata-moving_pr.
