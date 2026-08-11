@@ -1,2 +1,8 @@
-20260805	100000
-20260808	120000
+Create a program which takes two input parameters as integers and one character type input variable in which user will enter arithmetic operator ( like +, - etc )
+●	Create a variable to take the result.
+●	Calculate the result based on the specified arithmetic operator. Use the CASE statement.
+●	Output the result in a list. Also create text symbols.
+●	If user enters an invalid arithmetic operator display error. Use message class for this.
+●	Also display error message if user tries to divide by Zero.
+●	Test your program.
+●	Try out the various formatting statements like new-line, uline, skip. 
