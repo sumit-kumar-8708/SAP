@@ -1,0 +1,13 @@
+Basic Exercise:
+Display All sales orders ( Header data ) which are of type Standard orders in an ALV GRID Display. 
+Columns to be displayed:
+
+Order No - VBELN,	Creation Date - ERDAT,	Document category - VBTYP,	Net value  - NETWR,	Document Currency – WAERK,	Dist Channel - VTWEG,
+Division – SPART,	Sales Org – VKORG,	Sales group - VKGRP.
+
+Further Exercises :
+1.	Color all the rows Which have Sales Org = DBR1.
+2.	(Optional)  -  On Selecting any particular order & clicking a user created button on application toolbar “PARTNERS”, 
+a pop up should come with all the partner details with respect to that order.
+
+
