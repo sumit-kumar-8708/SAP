@@ -1,2 +1,2 @@
-20260805	100000
-20260808	120000
+Create a program which finds the factorial of a number and displays it. Write this using the DO.. ENDO statement 
+and then with WHILE loop. Also print the sy-index variable to check the loop iteration no.
