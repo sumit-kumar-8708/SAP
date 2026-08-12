@@ -55,3 +55,53 @@ FORM increase_salary TABLES p_lt_employee LIKE lt_employee.
   ENDLOOP.
 
 ENDFORM.
+
+
+  ------------------------------------------------or--------------------------------------------------
+
+TYPES: BEGIN OF ty_employee,
+         id      TYPE ztestemployee-id,
+         name    TYPE ztestemployee-name,
+         salary  TYPE ztestemployee-salary,
+         dept_id TYPE ztestemployee-dept_id,
+       END OF ty_employee.
+
+TYPES tt_employee TYPE TABLE OF ty_employee.
+
+DATA lt_employee TYPE tt_employee.
+
+START-OF-SELECTION.
+
+  SELECT id,
+         name,
+         salary,
+         dept_id
+    FROM ztestemployee
+    INTO TABLE @lt_employee.
+
+  PERFORM increase_salary CHANGING lt_employee.
+
+  WRITE: / 'Employee Details'.
+  ULINE.
+
+  LOOP AT lt_employee INTO DATA(ls_employee).
+
+    WRITE: / 'Employee ID :', ls_employee-id,
+           / 'Name        :', ls_employee-name,
+           / 'Salary      :', ls_employee-salary,
+           / 'Department  :', ls_employee-dept_id.
+
+    SKIP.
+
+  ENDLOOP.
+
+
+FORM increase_salary CHANGING ct_employee TYPE tt_employee.
+
+  LOOP AT ct_employee ASSIGNING FIELD-SYMBOL(<fs_employee>).
+
+    <fs_employee>-salary = <fs_employee>-salary + 1000.
+
+  ENDLOOP.
+
+ENDFORM.
